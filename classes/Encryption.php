@@ -24,6 +24,12 @@ class Encryption
     private $cipher = 'AES-256-CBC';
 
     /**
+     *
+     * @var array 
+     */
+    private $cache = [];
+
+    /**
      * 
      */
     public function __construct()
@@ -73,6 +79,9 @@ class Encryption
      */
     private function getDefaultKey()
     {
+        if (isset($this->cache['defaultKey'])) {
+            return $this->cache['defaultKey'];
+        }
         $app = App::get();
         $cacheKey = 'ivopetkov-encryption-default-key';
         $value = $app->cache->getValue($cacheKey);
@@ -85,6 +94,7 @@ class Encryption
             }
             $app->cache->set($app->cache->make($cacheKey, $value));
         }
+        $this->cache['defaultKey'] = $value;
         return $value;
     }
 

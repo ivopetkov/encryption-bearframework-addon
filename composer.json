@@ -1,7 +1,11 @@
 {
     "name": "ivopetkov/encryption-bearframework-addon",
     "description": "Encryption addon for Bear Framework",
-    "keywords": ["encryption", "addon", "Bear Framework"],
+    "keywords": [
+        "encryption",
+        "addon",
+        "Bear Framework"
+    ],
     "homepage": "https://github.com/ivopetkov/encryption-bearframework-addon",
     "license": "MIT",
     "authors": [
@@ -17,10 +21,11 @@
         "bearframework/bearframework": "1.*"
     },
     "require-dev": {
-        "bearframework/addon-tests": "0.3.*",
-        "phpunit/phpunit": "7.*"
+        "bearframework/addon-tests": "1.*"
     },
     "autoload": {
-        "files": ["autoload.php"]
+        "files": [
+            "autoload.php"
+        ]
     }
 }

@@ -34,7 +34,6 @@ class Encryption
      */
     public function __construct()
     {
-        
     }
 
     /**
@@ -97,5 +96,4 @@ class Encryption
         $this->cache['defaultKey'] = $value;
         return $value;
     }
-
 }

@@ -13,9 +13,9 @@ $app = App::get();
 $context = $app->contexts->get(__DIR__);
 
 $context->classes
-        ->add('IvoPetkov\BearFrameworkAddons\Encryption', 'classes/Encryption.php');
+    ->add('IvoPetkov\BearFrameworkAddons\Encryption', 'classes/Encryption.php');
 
 $app->shortcuts
-        ->add('encryption', function() {
-            return new IvoPetkov\BearFrameworkAddons\Encryption();
-        });
+    ->add('encryption', function () {
+        return new IvoPetkov\BearFrameworkAddons\Encryption();
+    });

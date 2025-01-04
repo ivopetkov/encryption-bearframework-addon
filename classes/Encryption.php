@@ -37,7 +37,7 @@ class Encryption
      * @param string $key
      * @return string
      */
-    public function encrypt(string $value, string $key = null): string
+    public function encrypt(string $value, ?string $key = null): string
     {
         if ($key === null) {
             $key = $this->getDefaultKey();
@@ -56,7 +56,7 @@ class Encryption
      * @param string $key
      * @return string|null
      */
-    public function decrypt(string $value, string $key = null): ?string
+    public function decrypt(string $value, ?string $key = null): ?string
     {
         if ($key === null) {
             $key = $this->getDefaultKey();

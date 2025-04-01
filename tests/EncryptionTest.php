@@ -21,7 +21,21 @@ class EncryptionTest extends BearFramework\AddonTests\PHPUnitTestCase
         $app = $this->getApp();
         $text = $this->generateString(10000000);
         $value = $app->encryption->encrypt($text);
+        $this->assertTrue(substr($value, 0, 4) === '[2,"');
         $this->assertTrue($app->encryption->decrypt($value) === $text);
+    }
+
+    /**
+     * 
+     */
+    public function testEncryptDecryptSchemaVersion1()
+    {
+        $app = $this->getApp();
+        $encryption = new \IvoPetkov\BearFrameworkAddons\Encryption(['internalEncryptSchemaVersion' => 1]);
+        $text = $this->generateString(10000000);
+        $value = $encryption->encrypt($text);
+        $this->assertTrue(substr($value, 0, 4) === '[1,"');
+        $this->assertTrue($encryption->decrypt($value) === $text);
     }
 
     /**
@@ -39,6 +53,34 @@ class EncryptionTest extends BearFramework\AddonTests\PHPUnitTestCase
     /**
      * 
      */
+    public function testEncryptDecryptFile()
+    {
+        $app = $this->getApp();
+        $tempDir = $this->getTempDir();
+
+        $sourceFile = $tempDir . '/file.txt';
+        $encryptedFile = $tempDir . '/file.txt.enc';
+        $decryptedFile = $tempDir . '/file.txt.dec';
+        $text = $this->generateString(10000000);
+        $this->makeFile($sourceFile, $text);
+        $app->encryption->encryptFile($sourceFile, $encryptedFile, '123');
+        $encryptedText = file_get_contents($encryptedFile);
+        $this->assertTrue(substr($encryptedText, 0, 4) === '[3,"');
+        $this->assertTrue($app->encryption->decrypt($encryptedText, '123') === $text);
+        $app->encryption->decryptFile($encryptedFile, $decryptedFile, '123');
+        $this->assertTrue(file_get_contents($decryptedFile) === $text);
+
+        $text2 = $this->generateString(10000000);
+        $encryptedFile2 = $tempDir . '/file2.txt.enc';
+        $decryptedFile2 = $tempDir . '/file2.txt.dec';
+        $this->makeFile($encryptedFile2, $app->encryption->encrypt($text2, '234'));
+        $app->encryption->decryptFile($encryptedFile2, $decryptedFile2, '234');
+        $this->assertTrue(file_get_contents($decryptedFile2) === $text2);
+    }
+
+    /**
+     * 
+     */
     public function testKeyPairEncryptDecrypt()
     {
         $app = $this->getApp();
@@ -46,6 +88,37 @@ class EncryptionTest extends BearFramework\AddonTests\PHPUnitTestCase
         list($privateKey, $publicKey) = $app->encryption->generateKeyPair();
         $value = $app->encryption->encryptWithPublicKey($text, $publicKey);
         $this->assertTrue($app->encryption->decryptWithPrivateKey($value, $privateKey) === $text);
+    }
+
+    /**
+     * 
+     * @return void
+     */
+    public function testKeyPairEncryptDecryptFile()
+    {
+        $app = $this->getApp();
+        $tempDir = $this->getTempDir();
+
+        list($privateKey, $publicKey) = $app->encryption->generateKeyPair();
+
+        $sourceFile = $tempDir . '/file.txt';
+        $encryptedFile = $tempDir . '/file.txt.enc';
+        $decryptedFile = $tempDir . '/file.txt.dec';
+        $text = $this->generateString(10000000);
+        $this->makeFile($sourceFile, $text);
+        $app->encryption->encryptFileWithPublicKey($sourceFile, $encryptedFile, $publicKey);
+        $encryptedText = file_get_contents($encryptedFile);
+        $this->assertTrue(strpos(substr($encryptedText, 0, 1000), '[3,"') !== false);
+        $this->assertTrue($app->encryption->decryptWithPrivateKey($encryptedText, $privateKey) === $text);
+        $app->encryption->decryptFileWithPrivateKey($encryptedFile, $decryptedFile, $privateKey);
+        $this->assertTrue(file_get_contents($decryptedFile) === $text);
+
+        $text2 = $this->generateString(10000000);
+        $encryptedFile2 = $tempDir . '/file2.txt.enc';
+        $decryptedFile2 = $tempDir . '/file2.txt.dec';
+        $this->makeFile($encryptedFile2, $app->encryption->encryptWithPublicKey($text2, $publicKey));
+        $app->encryption->decryptFileWithPrivateKey($encryptedFile2, $decryptedFile2, $privateKey);
+        $this->assertTrue(file_get_contents($decryptedFile2) === $text2);
     }
 
     /**

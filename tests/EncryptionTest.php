@@ -20,9 +20,9 @@ class EncryptionTest extends BearFramework\AddonTests\PHPUnitTestCase
     {
         $app = $this->getApp();
         $text = $this->generateString(10000000);
-        $value = $app->encryption->encrypt($text);
-        $this->assertTrue(substr($value, 0, 4) === '[2,"');
-        $this->assertTrue($app->encryption->decrypt($value) === $text);
+        $encryptedText = $app->encryption->encrypt($text);
+        $this->assertTrue(substr($encryptedText, 0, 4) === '[2,"');
+        $this->assertTrue($app->encryption->decrypt($encryptedText) === $text);
     }
 
     /**
@@ -33,9 +33,16 @@ class EncryptionTest extends BearFramework\AddonTests\PHPUnitTestCase
         $app = $this->getApp();
         $encryption = new \IvoPetkov\BearFrameworkAddons\Encryption(['internalEncryptSchemaVersion' => 1]);
         $text = $this->generateString(10000000);
-        $value = $encryption->encrypt($text);
-        $this->assertTrue(substr($value, 0, 4) === '[1,"');
-        $this->assertTrue($encryption->decrypt($value) === $text);
+        $encryptedText = $encryption->encrypt($text);
+        $this->assertTrue(substr($encryptedText, 0, 4) === '[1,"');
+        $this->assertTrue($encryption->decrypt($encryptedText) === $text);
+
+        $tempDir = $this->getTempDir();
+        $encryptedFile = $tempDir . '/file.txt.enc';
+        $decryptedFile = $tempDir . '/file.txt.dec';
+        $this->makeFile($encryptedFile, $encryptedText);
+        $encryption->decryptFile($encryptedFile, $decryptedFile);
+        $this->assertTrue(file_get_contents($decryptedFile) === $text);
     }
 
     /**
@@ -86,8 +93,8 @@ class EncryptionTest extends BearFramework\AddonTests\PHPUnitTestCase
         $app = $this->getApp();
         $text = $this->generateString(10000000);
         list($privateKey, $publicKey) = $app->encryption->generateKeyPair();
-        $value = $app->encryption->encryptWithPublicKey($text, $publicKey);
-        $this->assertTrue($app->encryption->decryptWithPrivateKey($value, $privateKey) === $text);
+        $encryptedText = $app->encryption->encryptWithPublicKey($text, $publicKey);
+        $this->assertTrue($app->encryption->decryptWithPrivateKey($encryptedText, $privateKey) === $text);
     }
 
     /**

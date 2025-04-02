@@ -297,8 +297,21 @@ class Encryption
                             throw new \Exception('Cannot decrypt value (' . openssl_error_string() . ')!');
                         }
                         file_put_contents($destinationFile, $result);
+                    } else if ($config[0] === 1) { // schema version 1
+                        $content = '';
+                        while (!feof($sourceFilePointer)) {
+                            $content .= fread($sourceFilePointer, 100000);
+                        }
+                        $cypher = 'AES-256-GCM';
+                        $iv = base64_decode($config[1]);
+                        $tag = base64_decode($config[2]);
+                        $result = openssl_decrypt($content, $cypher, $key, 0, $iv, $tag);
+                        if ($result === false) {
+                            throw new \Exception('Cannot decrypt value (' . openssl_error_string() . ')!');
+                        }
+                        file_put_contents($destinationFile, $result);
                     } else {
-                        throw new \Exception('unsupported schema version!');
+                        throw new \Exception('Unsupported schema version!');
                     }
                 } else {
                     throw new \Exception('Invalid value!');
